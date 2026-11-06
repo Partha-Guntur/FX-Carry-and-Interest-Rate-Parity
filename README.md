@@ -1,261 +1,71 @@
-# FX Carry Trade
+# FX Carry Trade — Portfolio Construction, Crash Risk & Factor Analysis
 
-This repository contains a systematic empirical study of the FX carry
-trade using eight major currencies over August 2016 to August 2026.
+Topic 9 (Carry & Macro Strategies). A systematic long–short carry portfolio across eight G10 currencies
+vs USD (EUR, GBP, JPY, CHF, NOK, AUD, NZD, CAD), Bloomberg data, August 2016 – August 2026.
 
-## Research Questions
+**Paper:** `paper/FX_Carry_Paper.pdf`, written in LaTeX (`paper/latex/main.tex` + `paper/latex/figures/`; upload that folder to Overleaf or run `pdflatex main.tex` twice). 17 pages in total: about 11 pages of main text, then references and annexures.
 
-### Primary
+## How to reproduce
 
-Does systematically buying high-interest-rate currencies and shorting
-low-interest-rate currencies produce a statistically significant and
-economically meaningful excess return after FX movements, carry, and
-transaction costs?
+```text
+python src/carry_project.py    # all analysis -> outputs/final/ (tables, figures, carry_results.xlsx, key_results.json)
+python src/build_latex.py      # rebuilds paper/latex/main.tex from those outputs and compiles it (needs pdflatex)
+```
+Packages: numpy, pandas, scipy, statsmodels, matplotlib, openpyxl; a LaTeX install (pdflatex) for the paper.
 
-### Secondary
+## Method (short)
 
-1.  Do observed one-month FX forward rates deviate from CIP-implied
-    forward rates?
-2.  Are CIP deviations related to the forward-carry signal?
-3.  Does forward carry predict subsequent FX returns?
-4.  How robust is the strategy to transaction costs and portfolio
-    concentration?
+* All pairs converted to USD per unit of foreign currency (positive return = foreign currency appreciates).
+* Signal at each month-end: 1M forward discount `c = S/F − 1` (≈ (i_foreign − i_USD)/12 by CIP).
+* Long top-3 / short bottom-3 (±1/3 each), held to the next month-end; no look-ahead.
+* Return = forward-based excess return `S(t+1)/F(t) − 1`, split into spot and carry components.
+* Costs: 5 bp per unit of one-way turnover (robustness 0–20 bp).
+* Sharpe = mean×12 / (sd×√12); Sortino uses downside deviation; Calmar = CAGR/|MaxDD|;
+  tail ratio = |mean worst 5% months| / mean best 5%.
+* UIP: Fama regression Δs(t+1) on (f − s)(t), H0: β = 1 (per currency, HAC; pooled with FE, clustered).
+* Extras: VIX regimes, rolling correlations with S&P 500/VIX, factor regressions, Fama–MacBeth (DOL, HML_FX),
+  3-month momentum overlay, buy-and-hold benchmarks (static carry, DOL), WIRP forward-looking check.
 
-## Currency Universe
+## Key results (119 holding months, Sep 2016 – Jul 2026)
 
-EUR, JPY, GBP, CHF, NOK, AUD, NZD, and CAD, with USD as the reference
-currency.
+| Metric | Carry (net) |
+|---|---|
+| Mean return / CAGR | 2.92% / 2.73% p.a. |
+| Volatility | 6.61% p.a. |
+| Sharpe / Sortino / Calmar | 0.44 / 0.64 / 0.19 |
+| Max drawdown | −14.0% (Aug 2017 → Mar 2020, recovered Mar 2021) |
+| Skewness / excess kurtosis (monthly) | −0.54 / 0.99 (daily: −0.74 / 8.2) |
+| Tail ratio | 1.08 |
+| Newey–West t (mean = 0) | 1.79 |
 
-## Methodology
+* Return decomposition: carry component 2.48% p.a. (t = 14.2), spot component 0.49% p.a. (t = 0.30) →
+  low-yielders did not appreciate as UIP predicts (forward premium puzzle at portfolio level).
+* Fama β per currency between −3.0 and 3.9, pooled 1.15 (s.e. 1.61): no rejection of UIP *or* random walk — low power.
+* Worst months: 2020-03 (COVID/oil war), 2018-12 (Fed hike/QT), 2021-11 (Omicron), 2022-09 (Fed 75bp / UK gilts /
+  yen intervention), 2024-07 (yen-carry unwind).
+* VIX regimes: Sharpe 0.64 (low VIX), 0.32 (high VIX), −0.13 (crisis months, VIX ≥ 30).
+* Corr with S&P 500 0.56, with ΔVIX −0.57; alpha after S&P + ΔVIX = 0.10%/month (t = 0.73).
+* Momentum filter hurts (Sharpe −0.23 vs 0.38 on common sample): 3-month G10 spot momentum reversed (−5.4% p.a.).
+* Benchmarks: static carry Sharpe 0.23, dollar basket (DOL) −0.23.
+* Positions: short CHF (100% of months), JPY (99%), EUR (98%); long side rotated — AUD/NZD/CAD (2016–19),
+  NOK/NZD/CAD (2019–22), GBP/NZD/CAD (2023–24), AUD/GBP/NOK (Dec 2024–2026). Full history: `outputs/final/tables/27_position_history.csv`.
 
-### FX Returns
+## Folder
 
-For direct USD-per-foreign quotations:
-
-$$
-R_t = \frac{S_t}{S_{t-1}}-1
-$$
-
-For inverse quotations:
-
-$$
-R_t = \frac{S_{t-1}}{S_t}-1
-$$
-
-This makes positive returns consistently represent foreign-currency
-appreciation against USD.
-
-### Interest Differential
-
-$$
-d_{i,t}=r_{i,t}-r_{USD,t}
-$$
-
-### Forward Carry
-
-The one-month forward premium/discount is converted into a
-currency-level carry signal, with larger forward discounts receiving
-higher carry rankings.
-
-### Portfolio
-
-At each formation month:
-
--   Buy the three highest-carry currencies.
--   Short the three lowest-carry currencies.
--   Equal-weight currencies within each side.
--   Hold the resulting portfolio during the following month.
-
-The one-month formation-to-holding lag prevents look-ahead bias.
-
-### Transaction Costs
-
-Portfolio turnover is:
-
-$$
-Turnover_t=\frac{1}{2}\sum_i |w_{i,t}-w_{i,t-1}|
-$$
-
-The baseline transaction-cost assumption is 5 bps per unit of one-way
-turnover. Robustness is tested at 2.5, 5, and 10 bps.
-
-## Key Results
-
-  Metric                         Result
-  --------------------------- ---------
-  Cumulative net return          22.67%
-  Annualized return               2.29%
-  Annualized volatility           6.59%
-  Sharpe ratio                     0.34
-  Maximum drawdown              -15.67%
-  Best month                      4.82%
-  Worst month                    -6.43%
-  Positive months                 60.0%
-  Mean monthly FX return         0.017%
-  Mean monthly carry return      0.175%
-  Mean monthly gross return      0.193%
-  Mean monthly net return        0.189%
-  Total transaction costs        0.483%
-
-## Strategy Performance
-![Gross vs Net Cumulative Performance](outputs/chart1/03_gross_vs_net.png)
-
-## Return Decomposition
-![FX and Carry Return Decomposition](outputs/chart1/01_return_decomposition.png)
-
-## Statistical Findings
-
-The mean monthly net return is positive but is not statistically
-significant.
-
--   Standard t-test: t = 1.09, p = 0.280
--   Newey-West/HAC test: t = 1.31, p = 0.189
--   Bootstrap 95% confidence interval: -0.154% to 0.520%
-
-UIP is rejected at the 5% level for 7 of the 8 currencies.
-
-Mean CIP deviations are statistically significant for all 8 currencies.
-
-CIP deviations are significantly related to the forward-carry signal for
-all 8 currencies, although the direction differs across quotation
-conventions.
-
-The correctly aligned forward-carry prediction tests find no
-statistically significant relationship between formation-month forward
-carry and the following month's standalone FX return.
-
-## Return Decomposition
-
-Approximately 91.0% of the average gross return comes from interest-rate
-carry and 9.0% from FX movements.
-
-## Risk
-
-The strategy has meaningful downside risk. Maximum drawdown is -15.67%,
-the worst monthly return is -6.43%, and the tail ratio is 0.852.
-
-Currency selection is persistent. The effective number of currencies is
-approximately 4.74 on the long side and 3.03 on the short side,
-indicating greater concentration on the short side.
-
-## Transaction-Cost Robustness
-
-    Cost assumption   Cumulative net return
-  ----------------- -----------------------
-            2.5 bps                  22.97%
-              5 bps                  22.67%
-             10 bps                  22.08%
-
-## CIP Analysis
-
-For each currency, the market forward is compared with the CIP-implied
-one-month forward:
-
-$$
-CIPDev_{i,t}
-=
-\frac{F^{Market}_{i,t}-F^{CIP}_{i,t}}
-{F^{CIP}_{i,t}}
-$$
-
-HAC inference indicates statistically significant mean CIP deviations
-for all eight currencies.
-
-## Project Structure
-
-``` text
-FX CARRY/
-├── data/
-├── notebooks/
-│   ├── cleaning.ipynb
-│   └── analysis.ipynb
-├── outputs/
-│   ├── chart1/
-│   └── tables1/
-└── README.md
+```text
+data/            Bloomberg exports (GP, FRD, WIRP, FXIP, SPX/VIX, policy rates) + macro_event_log.xlsx
+src/             carry_project.py (analysis), build_latex.py (paper)
+outputs/final/   figures/ (F01–F11), tables/ (00–26 CSV), carry_results.xlsx, key_results.json
+paper/           FX_Carry_Paper.pdf, latex/ (main.tex + figures)
+archive/         first version (notebooks + outputs) — superseded; its UIP test was mis-scaled
 ```
 
-`cleaning.ipynb` prepares and aligns the source data.
+## Still to do on the Bloomberg terminal
 
-`analysis.ipynb` performs portfolio construction, return decomposition,
-UIP and CIP analysis, statistical tests, risk analysis, and robustness
-checks.
-
-The `outputs/` directory contains the generated CSV tables and
-publication-ready figures.
-
-## Main Outputs
-
-### Figures
-
--   Return decomposition
--   Drawdown
--   Gross versus net cumulative performance
--   Annual returns
--   Long, short, and long-short cumulative performance
-
-### Tables
-
-The `outputs/tables1/` directory contains 28 empirical output tables
-covering performance, annual returns, transaction-cost robustness,
-return distribution, statistical significance, UIP, CIP, forward-carry
-prediction, drawdown, currency selection, concentration, return
-contributions, tail risk, and final portfolio results.
-
-## Reproducibility
-
-Core Python packages:
-
-``` text
-numpy
-pandas
-matplotlib
-statsmodels
-openpyxl
-```
-
-Run the notebooks in this order:
-
-``` text
-1. cleaning.ipynb
-2. analysis.ipynb
-```
-
-The analysis uses 120 monthly portfolio observations.
-
-## Limitations
-
-1.  The carry component is an approximation based on the available
-    interest-rate observations rather than a full daily
-    financing-accrual calculation.
-2.  Transaction costs use fixed basis-point assumptions rather than
-    realized bid-ask spreads and market impact.
-3.  Forward rates are taken from the prepared market-forward dataset.
-4.  The main strategy uses a relatively small universe of eight
-    currencies.
-5.  The monthly sample contains 120 observations, which limits
-    statistical power.
-6.  The study evaluates one specific top-3/bottom-3 portfolio
-    construction and does not claim it is an optimal specification.
-
-## Conclusion
-
-The evidence supports economically meaningful FX carry effects and
-significant deviations from standard parity relationships. However, the
-specific systematic top-3/bottom-3 strategy examined here does not
-produce a statistically significant average net return over the sample.
-
-The central conclusion is therefore:
-
-> FX carry remains an economically relevant source of returns, but the
-> realized profitability of a simple systematic carry portfolio is
-> exposed to substantial FX risk and is not statistically significant
-> after transaction costs over the sample examined.
-
-The results distinguish between economic profitability, statistical
-significance, parity deviations, and risk rather than treating a
-positive cumulative return alone as evidence of a successful strategy.
+* **CORR**: rolling 252-day correlation of the carry series (`outputs/final/tables/25_daily_returns.csv`) with SPX and VIX; screenshot into Annex D.
+* **REGR**: carry on SPX return and ΔVIX (compare with Table 11); screenshot into Annex D.
+* Optional: **BTST** cross-check of Table 2. FXIP positioning data were not available for this universe.
 
 ## Author
 
-**Partha Guntur**
+Partha Gunturu

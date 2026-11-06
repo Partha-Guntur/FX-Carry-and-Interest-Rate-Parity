@@ -1,0 +1,5 @@
+,alpha (% per month),t(alpha),beta,t(beta),R2,Obs
+S&P 500 return,-0.0317,-0.2202,24.0026,6.2395,0.3128,119.0
+Change in VIX,0.2473,2.1254,-0.1993,-8.7575,0.3286,119.0
+Global FX volatility innovation,0.2479,1.8737,-4.9099,-2.028,0.0671,119.0
+S&P 500 + change in VIX (joint),0.1049,0.7333,12.3003,2.187,0.3608,119.0

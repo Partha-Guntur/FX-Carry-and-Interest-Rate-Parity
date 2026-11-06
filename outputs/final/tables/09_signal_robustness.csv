@@ -1,0 +1,4 @@
+,Obs,Mean ann. (%),CAGR (%),Vol ann. (%),Sharpe,Sortino,Max drawdown (%),Calmar,Skewness,Excess kurtosis,Worst period (%),Best period (%),Hit rate (%),Tail ratio (|mean worst 5%| / mean best 5%),NW t-stat (mean=0)
+Forward-discount signal (baseline),119.0,2.916,2.732,6.61,0.441,0.638,-14.039,0.195,-0.538,0.994,-6.408,4.652,58.824,1.085,1.795
+Policy-rate differential signal,119.0,2.245,2.057,6.444,0.348,0.493,-15.444,0.133,-0.619,0.774,-6.408,3.941,56.303,1.236,1.357
+Top-2 / bottom-2 (forward signal),119.0,2.91,2.671,7.367,0.395,0.563,-14.494,0.184,-0.546,0.948,-7.198,5.184,59.664,1.086,1.723

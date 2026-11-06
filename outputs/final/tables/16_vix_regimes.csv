@@ -1,0 +1,6 @@
+,Obs,Mean ann. (%),Vol ann. (%),Sharpe,Skewness,Worst period (%),Hit rate (%),Momentum overlay Sharpe
+Low VIX (avg VIX < median 17.5),59.0,3.372,5.262,0.641,-0.612,-3.776,61.017,-0.699
+High VIX (avg VIX >= median),60.0,2.467,7.755,0.318,-0.462,-6.408,56.667,0.138
+Crisis (intra-month VIX peak >= 30),25.0,-1.234,9.631,-0.128,-0.24,-6.408,48.0,0.039
+Ex-ante low VIX (VIX at formation < median),59.0,-0.158,5.769,-0.027,-0.608,-4.248,54.237,-0.694
+Ex-ante high VIX (VIX at formation >= median),60.0,5.939,7.288,0.815,-0.659,-6.408,63.333,0.12

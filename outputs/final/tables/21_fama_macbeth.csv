@@ -1,0 +1,7 @@
+,mean (% p.m.),NW t-stat
+const,0.123,0.604
+lambda_DOL,-0.263,-1.059
+lambda_HML,0.233,1.488
+Factor mean: DOL,-0.141,-0.817
+Factor mean: HML_FX,0.247,1.826
+Cross-sectional R2,0.461,
