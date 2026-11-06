@@ -259,5 +259,3 @@ positive cumulative return alone as evidence of a successful strategy.
 ## Author
 
 **Partha Guntur**
-
-Master's-level quantitative finance research project.
