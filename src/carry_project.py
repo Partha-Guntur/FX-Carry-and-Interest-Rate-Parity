@@ -33,7 +33,6 @@ Conventions
   are already excess returns. Sortino uses downside deviation below 0.
   CAGR is the geometric annual growth rate. Calmar = CAGR / |max drawdown|.
 """
-from __future__ import annotations
 
 import json
 import pathlib
