@@ -124,7 +124,6 @@ def load_bbg_series(sheet):
     df["px"] = pd.to_numeric(df["px"], errors="coerce")
     return df.dropna().drop_duplicates("date").set_index("date")["px"].sort_index()
 
-
 S, F = load_fx()
 SPX = load_bbg_series("price")
 VIX = load_bbg_series("Sheet2")
